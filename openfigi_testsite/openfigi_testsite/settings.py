@@ -25,12 +25,17 @@ SECRET_KEY = 'vj&cb2w9)c*^$^5q*ebubrl_po3em3kf%d3d$w(m_m4h*o-(93'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    '10.0.2.15',
+    '107.201.110.17'
+]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'openfigi_connect',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
