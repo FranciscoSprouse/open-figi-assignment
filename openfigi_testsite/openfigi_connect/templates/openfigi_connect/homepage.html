@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="/static/homepage_sheet.css">
 </head>
 <body>
-    <form method="post" class="form_info">
+    <form method="post" enctype="multipart/form-data" class="form_info">
         {% csrf_token %}
         Choose SEDOL file to upload
         <input type="file" name="SEDOL" accept=".csv, .xlsx"> <br/>
