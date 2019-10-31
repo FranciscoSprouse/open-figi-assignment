@@ -5,6 +5,14 @@
     <title>Success</title>
 </head>
 <body>
-    <p>Success {{ composites }}</p>
+    <p>Success</p>
+    <table>
+        {% for key,value in composites.items %}
+        <tr>
+            <td>{{ key }}</td>
+            <td>{{ value }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>

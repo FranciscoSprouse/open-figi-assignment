@@ -54,20 +54,27 @@ def parse_excel_for_sedols(workbook):
 def fetch_compositie_FIGI(sedols):
     bloomberg_api_url = 'https://api.openfigi.com/v2/mapping'
     headers = {'Content-Type': 'application/json'}
-    composites = []
+    composites = {}
 
     # Only call the api 5 times before we get rate limited
     # Also, only add 10 SEDOLs per request to avoid rate limiting
     for i in range(5):
-        response = requests.post(bloomberg_api_url, headers=headers, data=json.dumps(sedols[i:i+9]))
+        response = requests.post(bloomberg_api_url, headers=headers, data=json.dumps(sedols[i*9:(i*9)+9]))
         # On a good response, parse out the composite FIGIs from the response
         if response.status_code == 200:
             response_json = response.json()
             # The response contains a list of dictionaries, each one corresponds to a specific SEDOL number
-            for json_dict in response_json:
+            for count, json_dict in enumerate(response_json):
                 if "data" in json_dict:
                     for figi in json_dict["data"]:
-                        composites.append(figi['compositeFIGI'])
+                        sedol = sedols[(i*9)+count]['idValue']
+                        if sedol in composites:
+                            composites[sedol].append(figi['compositeFIGI'])
+                        else:
+                            composites[sedol] = [figi['compositeFIGI']]
+                elif "error" in json_dict:
+                    sedol = sedols[(i*9)+count]['idValue']
+                    composites[sedol] = ["Error no id found"]
         # Bloomberg API returns 500 for rate limiting (this is bad practice and should return a 429)
         # If for some reason we start getting rate limited, return what we have
         elif response.status_code == 500:
@@ -75,5 +82,4 @@ def fetch_compositie_FIGI(sedols):
             return composites
         else:
             return None
-
     return composites
