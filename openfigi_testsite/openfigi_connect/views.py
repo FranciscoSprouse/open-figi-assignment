@@ -73,7 +73,7 @@ def fetch_compositie_FIGI(sedols):
         # On a good response, parse out the composite FIGIs from the response
         if response.status_code == 200:
             response_json = response.json()
-            # The response contains a list of dictionaries, each one corresponds to a specific SEDOL number
+            # The response contains a dictionary of lists, each one corresponds to a specific SEDOL number
             for count, json_dict in enumerate(response_json):
                 if "data" in json_dict:
                     for figi in json_dict["data"]:
