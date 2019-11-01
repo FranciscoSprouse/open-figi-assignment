@@ -5,6 +5,13 @@ import openpyxl
 import json
 import requests
 
+# The main code for this assignment
+# Ideally, constant numbers and Strings in the code would be abstracted out to a constants/strings file,
+# but I felt that was overkill for the purpose of this assignment.
+# I would also implement unit testing for this, but I also felt that was overkill,
+# especially given the minimal level of detail that the Bloomberg api provides,
+# most unit tests would have to be made by guessing and checking what error codes Bloomberg returns
+# for certain inputs, so that the code could handle them accordingly.
 
 # The Homepage for the website
 # Accepts a GET request to display the home page, or a POST request to upload a sedol file
@@ -44,13 +51,16 @@ def parse_excel_for_sedols(workbook):
 
         for cell in row:
             sedol = str(cell.value)
+            # Only gathers SEDOLs that meet the correct format, by being 7 alphanumeric characters
+            # Ignores all other SEDOL numbers
             if len(sedol) == 7 and sedol.isalnum():
                sedols.append({"idType": "ID_SEDOL", "idValue": sedol})
 
     return sedols
 
 
-# Fetch the composite FIGI numbers given a list of SEDOLS
+# Fetch the composite FIGI numbers from openfigi given a list of SEDOLS
+# Returns a dictionary in the format of {SEDOL Number: [list of composite figis]}
 def fetch_compositie_FIGI(sedols):
     bloomberg_api_url = 'https://api.openfigi.com/v2/mapping'
     headers = {'Content-Type': 'application/json'}
@@ -72,14 +82,15 @@ def fetch_compositie_FIGI(sedols):
                             composites[sedol].append(figi['compositeFIGI'])
                         else:
                             composites[sedol] = [figi['compositeFIGI']]
+                # Errors are returned when no composite FIGI could be found
                 elif "error" in json_dict:
                     sedol = sedols[(i*9)+count]['idValue']
                     composites[sedol] = ["Error no id found"]
         # Bloomberg API returns 500 for rate limiting (this is bad practice and should return a 429)
         # If for some reason we start getting rate limited, return what we have
         elif response.status_code == 500:
-            print('rate limited')
             return composites
+        # In the event that something unexpected happens at the Bloomberg API side, end the task gracefully
         else:
             return None
     return composites
